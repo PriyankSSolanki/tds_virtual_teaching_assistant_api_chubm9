@@ -1,0 +1,57 @@
+# Promptfoo evaluation configuration for TDS Virtual TA
+# Update the endpoint URL below to your deployed API
+
+description: "TDS Virtual Teaching Assistant API Evaluation"
+
+providers:
+  - id: tds-api
+    config:
+      url: "https://clear-clownfish-52.convex.cloud/api/"
+      method: POST
+      headers:
+        Content-Type: application/json
+      body:
+        question: "{{prompt}}"
+
+prompts:
+  - "Should I use gpt-4o-mini or gpt-3.5-turbo for the assignment?"
+  - "What are the submission guidelines for TDS assignments?"
+  - "How do I set up my Python environment for the course?"
+  - "What are the best practices for data visualization in TDS?"
+  - "How should I evaluate machine learning models?"
+  - "What is the deadline policy for assignments?"
+  - "Which libraries should I use for data analysis?"
+  - "How do I handle missing data in my analysis?"
+  - "What file formats are accepted for submissions?"
+  - "Can you explain the grading criteria for projects?"
+
+tests:
+  - description: "API returns valid JSON response"
+    assert:
+      - type: is-json
+      - type: contains-json
+        value:
+          answer: 
+          links: []
+
+  - description: "Answer field is present and non-empty"
+    assert:
+      - type: javascript
+        value: "output.answer && output.answer.length > 0"
+
+  - description: "Links array is present"
+    assert:
+      - type: javascript
+        value: "Array.isArray(output.links)"
+
+  - description: "Links contain URL and text fields"
+    assert:
+      - type: javascript
+        value: "output.links.every(link => link.url && link.text)"
+
+  - description: "Answer mentions relevant course concepts"
+    assert:
+      - type: contains-any
+        value: ["TDS", "assignment", "course", "python", "data", "analysis"]
+
+outputPath: "./evaluation-results.json"
